@@ -14,6 +14,8 @@ contract LPLock {
 
     event TokensLocked(address indexed user, address indexed token, uint256 amount, uint256 lockDuration);
     event TokensUnlocked(address indexed user, address indexed token, uint256 amount);
+    event DestinationChanged(address indexed oldDestination, address indexed newDestination);
+
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Not the contract owner");
@@ -43,5 +45,11 @@ contract LPLock {
         IERC20(_token).safeTransfer(owner, amount);
 
         emit TokensUnlocked(msg.sender, _token, amount);
+    }
+
+    function changeDestination(address _newDestination) external onlyOwner {
+        require(_newDestination != address(0), "Invalid destination address");
+        emit DestinationChanged(owner, _newDestination);
+        owner = _newDestination;
     }
 }
