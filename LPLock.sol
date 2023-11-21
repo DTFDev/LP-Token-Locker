@@ -29,6 +29,8 @@ contract LPLock {
     function lockTokens(address _token, uint256 _amount, uint256 _lockDuration) external onlyOwner {
         // Lock LP Tokens for the specified duration
         require(lockedBalances[msg.sender] == 0, "Tokens already locked");
+        require(_amount > 0, "Amount is zero");
+        require(_lockDuration > block.timestamp, "Invalid lock duration");
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         lockedBalances[msg.sender] = _amount;
         unlockTimestamp = _lockDuration;
