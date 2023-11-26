@@ -26,8 +26,8 @@ contract LPLock {
         owner = msg.sender; 
     }
 
+		// Lock LP Tokens for the specified duration
     function lockTokens(address _token, uint256 _amount, uint256 _lockDuration) external onlyOwner {
-        // Lock LP Tokens for the specified duration
         require(lockedBalances[msg.sender] == 0, "Tokens already locked");
         require(_amount > 0, "Amount is zero");
         require(_lockDuration > block.timestamp, "Invalid lock duration");
@@ -39,8 +39,8 @@ contract LPLock {
         emit TokensLocked(msg.sender, _token, _amount, lockDuration);
     }
 
+		// Unlock LP Tokens after the specified duration
     function unlockTokens(address _token) external onlyOwner {
-         // Unlock LP Tokens after the specified duration
         require(block.timestamp >= unlockTimestamp, "Tokens cannot be unlocked yet");
         uint256 amount = lockedBalances[msg.sender];
         lockedBalances[msg.sender] = 0;
@@ -48,10 +48,20 @@ contract LPLock {
 
         emit TokensUnlocked(msg.sender, _token, amount);
     }
-
+		
+		// Change owner of contract & receiver of LP token(s)
     function changeDestination(address _newDestination) external onlyOwner {
         require(_newDestination != address(0), "Invalid destination address");
         emit DestinationChanged(owner, _newDestination);
         owner = _newDestination;
+    }
+
+		// Extend the LP lock duration (unix timestamp)
+    function extendDuration(uint256 _newLockDuration) external onlyOwner {
+        require(_newLockDuration > unlockTimestamp, "New lock duration must be greater than previous duration");
+        unlockTimestamp = _newLockDuration;
+        lockDuration = _newLockDuration;
+
+        emit DurationExtended(msg.sender, _newLockDuration);
     }
 }
